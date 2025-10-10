@@ -19,7 +19,7 @@ public class FarmService : Services.Farm.FarmBase
         return Task.FromResult(response);
     }
 
-     public override Task<Services.SubmissionResult> SubmitWater(Services.SubmitRequest request, ServerCallContext context)
+    public override Task<Services.SubmissionResult> SubmitWater(Services.SubmitRequest request, ServerCallContext context)
     {
         var logicResult = mLogic.SubmitWater(request.Amount);
         var response = new Services.SubmissionResult

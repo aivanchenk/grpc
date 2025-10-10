@@ -37,5 +37,16 @@
             "console": "externalTerminal",
             "stopAtEntry": false
         },
+        {
+            "name": "Food",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-Food",
+            "program": "${workspaceFolder}/Food/bin/Debug/net9.0/Food.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Food",
+            "console": "externalTerminal",
+            "stopAtEntry": false
+        },
     ]
 }
