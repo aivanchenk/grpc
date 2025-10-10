@@ -48,5 +48,16 @@
             "console": "externalTerminal",
             "stopAtEntry": false
         },
+        {
+            "name": "Water",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-Water",
+            "program": "${workspaceFolder}/Water/bin/Debug/net9.0/Water.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Water",
+            "console": "externalTerminal",
+            "stopAtEntry": false
+        },
     ]
 }

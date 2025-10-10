@@ -49,5 +49,17 @@
             ],
             "problemMatcher": "$msCompile"
         },
+        {
+            "label": "build-Water",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/Water/Water.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        }
     ]
 }
