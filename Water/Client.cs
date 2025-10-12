@@ -13,21 +13,9 @@ using Services;
 class Client
 {
 	/// <summary>
-	/// A set of names to choose from.
+	/// Amount of water currently pending to be processed or delivered.
 	/// </summary>
-	private readonly List<string> NAMES = 
-		new List<string> { 
-			"John", "Peter", "Jack", "Steve"
-		};
-
-	/// <summary>
-	/// A set of surnames to choose from.
-	/// </summary>
-	private readonly List<string> SURNAMES = 
-		new List<String> { 
-			"Johnson", "Peterson", "Jackson", "Steveson" 
-		};
-
+	private double pendingWater = 0.0;
 
 	/// <summary>
 	/// Logger for this class.
@@ -55,7 +43,8 @@ class Client
 	/// <summary>
 	/// Program body.
 	/// </summary>
-	private void Run() {
+	private void Run()
+	{
 		//configure logging
 		ConfigureLogging();
 
@@ -63,28 +52,51 @@ class Client
 		var rnd = new Random();
 
 		//run everythin in a loop to recover from connection errors
-		 while( true )
-        {
-            try {
-                //connect to the server, get service proxy
-                using var channel = GrpcChannel.ForAddress("http://127.0.0.1:5000");
-                var client = new Farm.FarmClient(channel);
+		while (true)
+		{
+			try
+			{
+				//connect to the server, get service proxy
+				using var channel = GrpcChannel.ForAddress("http://127.0.0.1:5000");
+				var client = new Farm.FarmClient(channel);
 
-                // send food (double amount) - synchronous/blocking call (no async/await)
-                var request = new SubmitRequest { Amount = 21.5 };
-                var reply = client.SubmitWater(request);
+				while (true)
+				{
+					// produce between -1.0 and 5.0 water
+					double producedWater = Math.Round(rnd.NextDouble() * 6.0 - 1.0, 1);
+					pendingWater += producedWater;
 
-                Console.WriteLine($"Accepted: {reply.IsAccepted}, Reason: {reply.FailReason}");
-            }
-            catch( Exception e )
-            {
-                //log whatever exception to console
-                mLog.Warn(e, "Unhandled exception caught. Will restart main loop.");
+					var request = new SubmitRequest { Amount = pendingWater };
+					var result = client.SubmitWater(request);
 
-                //prevent console spamming
-                Thread.Sleep(2000);
-            }
-        }
+					if (result.IsAccepted)
+					{
+						mLog.Info($"Submitted {pendingWater} water.");
+						pendingWater = 0;
+					}
+					else if (result.FailReason == "FarmSelling")
+					{
+						mLog.Info("Farm is selling; will retry with accumulated water.");
+					}
+					else
+					{
+						mLog.Warn($"Submission failed: {result.FailReason}. Keeping {pendingWater} to retry.");
+					}
+
+					// wait between sending attempts
+					Thread.Sleep(1000);
+				}
+
+			}
+			catch (Exception e)
+			{
+				//log whatever exception to console
+				mLog.Warn(e, "Unhandled exception caught. Will restart main loop.");
+
+				//prevent console spamming
+				Thread.Sleep(2000);
+			}
+		}
 	}
 
 	/// <summary>
